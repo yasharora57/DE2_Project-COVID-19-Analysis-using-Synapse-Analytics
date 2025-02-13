@@ -48,6 +48,8 @@ The project follows a **medallion architecture** with three layers:
   - Evaluated data quality issues in the Trip Data's `total_amount` column.
   - Joined Trip Data, Taxi Zone, and Payment Type to analyze payment behavior by borough.
 
+- **Note**: During data discovery, views are built on top of external tables and used the **OPENROWSET** function to perform partition pruning. This approach helps optimize query costs in the serverless SQL pool by avoiding the need to scan entire datasets. Instead of relying solely on external tables, views are created using OPENROWSET to efficiently filter and analyze specific partitions of the data.
+
 ---
 
 ### 2. Logical Data Warehouse (LDW) Setup
@@ -57,6 +59,8 @@ The project follows a **medallion architecture** with three layers:
 - Created external tables and views in the **bronze layer**.
 - Used **CETAS (Create External Table As Select)** to transform and store data in the **silver layer**.
 - Partitioned data in the silver layer using stored procedures for efficient querying.
+
+- **Note**: For the external table `silver.trip_data_green_csv`, the data is saved in partitions within the ADLS silver layer. Since native partitioning is not supported by the CETAS (Create External Table As Select) statement in Azure Synapse, a workaround is implemented using a stored procedure. This procedure takes `year` and `month` as parameters and is executed for all combinations of months and years to create partitioned data. This approach ensures efficient data storage and query performance by organizing the data into logical partitions based on time.
 
 ---
 
